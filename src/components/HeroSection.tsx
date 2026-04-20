@@ -1,5 +1,6 @@
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Phone, MessageCircle } from "lucide-react";
+import { Phone, MessageCircle, Volume2, VolumeX } from "lucide-react";
 import heroVideo from "@/assets/video-1.MP4";
 
 const WA_LINK = "https://wa.me/message/OHVB7IHZLCOSJ1";
@@ -15,6 +16,45 @@ const benefits = [
 ];
 
 const HeroSection = () => {
+  const [isMuted, setIsMuted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {
+        console.log("Autoplay blocked even when muted. This is rare.");
+      });
+    }
+
+    // Unmute automatically on first interaction
+    const handleFirstInteraction = () => {
+      if (videoRef.current) {
+        videoRef.current.muted = false;
+        setIsMuted(false);
+        if (videoRef.current.paused) {
+          videoRef.current.play();
+        }
+      }
+      window.removeEventListener("click", handleFirstInteraction);
+      window.removeEventListener("touchstart", handleFirstInteraction);
+    };
+
+    window.addEventListener("click", handleFirstInteraction);
+    window.addEventListener("touchstart", handleFirstInteraction);
+
+    return () => {
+      window.removeEventListener("click", handleFirstInteraction);
+      window.removeEventListener("touchstart", handleFirstInteraction);
+    };
+  }, []);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
+
   return (
     <section className="relative min-h-screen bg-gradient-hero overflow-hidden">
       {/* Decorative elements */}
@@ -34,6 +74,7 @@ const HeroSection = () => {
 
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/30 max-w-md mx-auto lg:max-w-none">
               <video
+                ref={videoRef}
                 src={heroVideo}
                 autoPlay
                 muted
@@ -41,6 +82,19 @@ const HeroSection = () => {
                 playsInline
                 className="w-full h-[400px] lg:h-[600px] object-cover object-top"
               />
+
+              {/* Sound Toggle Button */}
+              <button
+                onClick={toggleMute}
+                className="absolute top-4 right-4 z-10 bg-burgundy-dark/60 hover:bg-burgundy-dark/80 text-gold p-2 rounded-full backdrop-blur-sm border border-gold/30 transition-all duration-300"
+                aria-label={isMuted ? "Unmute video" : "Mute video"}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-5 h-5" />
+                ) : (
+                  <Volume2 className="w-5 h-5" />
+                )}
+              </button>
 
               <div className="absolute inset-0 bg-gradient-to-t from-burgundy-dark/60 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
