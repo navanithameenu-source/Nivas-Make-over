@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Phone, MessageCircle } from "lucide-react";
-import heroVideo from "@/assets/video 1.mp4";
+import heroVideo from "@/assets/video 1.MP4";
 
 const WA_LINK = "https://wa.me/message/OHVB7IHZLCOSJ1";
 
